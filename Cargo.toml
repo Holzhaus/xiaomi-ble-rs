@@ -12,3 +12,9 @@ categories = ["parser-implementations"]
 exclude = [".*"]
 
 [dependencies]
+binrw = "0.13"
+modular-bitfield = "0.11"
+log = "0.4"
+uuid = "1.8"
+phf = { version = "0.11", features = ["macros"] }
+thiserror = "1.0"
