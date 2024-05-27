@@ -51,7 +51,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
 
                 for service_advertisement in service_advertisements {
                     for event in service_advertisement.iter_sensor_values() {
-                        println!("Sensor Value: {:?}", event);
+                        println!("Sensor Value: {}", event);
                     }
                 }
                 println!()

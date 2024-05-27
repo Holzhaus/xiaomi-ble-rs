@@ -9,6 +9,8 @@
 //! The sensor abstraction are used to access data regardless of the underlying protocol that is
 //! used.
 
+use core::fmt;
+
 /// Represents a sensor value.
 #[derive(Debug, Copy, Clone)]
 pub enum SensorValue {
@@ -34,4 +36,30 @@ pub enum SensorValue {
     SmokeDetected(bool),
     /// Time without motion (s)
     TimeWithoutMotion(u8),
+}
+
+impl fmt::Display for SensorValue {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match &self {
+            Self::Power(value) => write!(f, "Power = {}", if *value { "on" } else { "off" }),
+            Self::Temperature(value) => write!(f, "Temperature = {} °C", value),
+            Self::Humidity(value) => write!(f, "Humidity = {} %", value),
+            Self::Illuminance(value) => write!(f, "Illuminance = {} lx", value),
+            Self::Moisture(value) => write!(f, "Moisture = {} %", value),
+            Self::Conductivity(value) => write!(f, "Conductivity = {} µS/cm", value),
+            Self::FormaldehydeConcentration(value) => {
+                write!(f, "Formaldehyde Concentration = {} mg/m³", value)
+            }
+            Self::Consumable(value) => write!(f, "Consumable = {} %", value),
+            Self::MoistureDetected(value) => write!(
+                f,
+                "Moisture detected = {}",
+                if *value { "yes" } else { "no" }
+            ),
+            Self::SmokeDetected(value) => {
+                write!(f, "Smoke detected = {}", if *value { "yes" } else { "no" })
+            }
+            Self::TimeWithoutMotion(value) => write!(f, "Time without motion = {} s", value),
+        }
+    }
 }
