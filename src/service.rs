@@ -8,6 +8,7 @@
 
 //! Service-related functions.
 
+use crate::device::DeviceType;
 use crate::error::ParseError;
 use crate::mibeacon::MiBeaconServiceAdvertisement;
 use crate::sensor::SensorValue;
@@ -47,6 +48,13 @@ pub enum ServiceAdvertisement {
 }
 
 impl ServiceAdvertisement {
+    /// Get device type of advertisement sender.
+    #[must_use]
+    pub fn device_type(&self) -> Option<&'static DeviceType> {
+        match &self {
+            Self::MiBeacon(parsed_adverisement) => parsed_adverisement.device_type(),
+        }
+    }
     /// Yields a list of sensor values parsed from the objects contained in the service advertisement.
     pub fn iter_sensor_values(&self) -> impl Iterator<Item = SensorValue> + '_ {
         match &self {
