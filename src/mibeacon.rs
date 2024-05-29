@@ -7,6 +7,12 @@
 // SPDX-License-Identifier: MPL-2.0
 
 //! Implementation of the MiBeacon protocol data structures.
+//!
+//! ## References
+//!
+//! - <https://home-is-where-you-hang-your-hack.github.io/ble_monitor/MiBeacon_protocol>
+//! - <https://github.com/Bluetooth-Devices/xiaomi-ble/blob/84d79b0f7dba58472ab8fd4b3e9c27bfb838fbee/src/xiaomi_ble/parser.py>
+//! - <https://github.com/Ernst79/bleparser/blob/c42ae922e1abed2720c7fac993777e1bd59c0c93/package/bleparser/xiaomi.py>
 
 // FIXME: This lint is incompatible with `modular-bitfield` crate.
 #![allow(clippy::must_use_candidate)]
