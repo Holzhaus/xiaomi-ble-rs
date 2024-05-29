@@ -38,6 +38,56 @@ pub enum SensorValue {
     TimeWithoutMotion(u8),
 }
 
+/// The unit of measurement of a [`SensorValue`].
+#[derive(Debug)]
+pub enum UnitOfMeasurement {
+    /// Degrees Celsius (°C)
+    DegreesCelsius,
+    /// Percent (%)
+    Percent,
+    /// Lux (lx)
+    Lux,
+    /// Microsiemens per Centimeter (µS/cm)
+    MicrosiemensPerCentimeter,
+    /// Milligram per Cubic Meter (mg/m³)
+    MilligramPerCubicMeter,
+    /// Seconds (s)
+    Seconds,
+}
+
+impl fmt::Display for UnitOfMeasurement {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match &self {
+            Self::DegreesCelsius => write!(f, "°C"),
+            Self::Percent => write!(f, "%"),
+            Self::Lux => write!(f, "lx"),
+            Self::MicrosiemensPerCentimeter => write!(f, "µS/cm"),
+            Self::MilligramPerCubicMeter => write!(f, "mg/m³"),
+            Self::Seconds => write!(f, "s"),
+        }
+    }
+}
+
+impl SensorValue {
+    /// Get the unit of measurement for this sensor value (if any).
+    #[must_use]
+    pub fn unit_of_measurement(&self) -> Option<UnitOfMeasurement> {
+        match &self {
+            Self::Power(_) => None,
+            Self::Temperature(_) => UnitOfMeasurement::DegreesCelsius.into(),
+            Self::Humidity(_) => UnitOfMeasurement::Percent.into(),
+            Self::Illuminance(_) => UnitOfMeasurement::Lux.into(),
+            Self::Moisture(_) => UnitOfMeasurement::Percent.into(),
+            Self::Conductivity(_) => UnitOfMeasurement::MicrosiemensPerCentimeter.into(),
+            Self::FormaldehydeConcentration(_) => UnitOfMeasurement::MilligramPerCubicMeter.into(),
+            Self::Consumable(_) => UnitOfMeasurement::Percent.into(),
+            Self::MoistureDetected(_) => None,
+            Self::SmokeDetected(_) => None,
+            Self::TimeWithoutMotion(_) => UnitOfMeasurement::Seconds.into(),
+        }
+    }
+}
+
 impl fmt::Display for SensorValue {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match &self {
