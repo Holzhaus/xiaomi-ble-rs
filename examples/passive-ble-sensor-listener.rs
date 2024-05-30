@@ -46,8 +46,13 @@ async fn main() -> Result<(), Box<dyn Error>> {
                 println!("MAC: {}", peripheral.address());
                 let properties = peripheral.properties().await?;
                 properties
-                    .and_then(|p| p.local_name)
+                    .as_ref()
+                    .and_then(|p| p.local_name.as_ref())
                     .inspect(|local_name| println!("Name: {}", local_name));
+                properties
+                    .as_ref()
+                    .and_then(|p| p.rssi)
+                    .inspect(|local_name| println!("RSSI: {}", local_name));
 
                 for service_advertisement in service_advertisements {
                     for event in service_advertisement.iter_sensor_values() {
