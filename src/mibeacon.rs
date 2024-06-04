@@ -95,12 +95,6 @@ static DEVICE_TYPES: phf::Map<u16, DeviceType> = phf_map! {
     0x0DE7u16 => DeviceType { name: "Odor Eliminator", model: "SU001-T", manufacturer: "Xiaomi" },
 };
 
-/// Maps a MiBeacon device ID to a [DeviceType].
-#[must_use]
-pub fn device_id_to_type(device_id: u16) -> Option<&'static DeviceType> {
-    DEVICE_TYPES.get(&device_id)
-}
-
 /// MAC Address of a device.
 #[derive(BinRead)]
 #[br(little)]
@@ -1348,7 +1342,7 @@ impl MiBeaconServiceAdvertisement {
 
     /// Get device type of advertisement sender.
     pub fn device_type(&self) -> Option<&'static DeviceType> {
-        device_id_to_type(self.device_id)
+        DEVICE_TYPES.get(&self.device_id)
     }
 
     /// Yields the object paylads for the service advertisement.
