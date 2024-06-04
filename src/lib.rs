@@ -23,9 +23,10 @@
 #![cfg_attr(not(test), deny(clippy::panic_in_result_fn))]
 
 pub mod device;
-pub mod error;
 pub mod mibeacon;
 pub mod sensor;
 pub mod service;
+mod util;
 
 pub use service::parse_service_advertisement;
+pub use util::ParseError;

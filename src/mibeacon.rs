@@ -19,14 +19,87 @@
 // FIXME: This lint is incompatible with `modular-bitfield` crate.
 #![allow(clippy::must_use_candidate)]
 
-use crate::device::{device_id_to_type, DeviceType};
-use crate::error::ParseError;
+use crate::device::DeviceType;
 use crate::sensor::{NumericMeasurementType, SensorEvent, UnitOfMeasurement};
+use crate::util::U24;
+use crate::ParseError;
 use binrw::{binread, helpers::until_eof, BinRead};
 use core::fmt;
 use log::warn;
 use modular_bitfield::prelude::*;
+use phf::phf_map;
 use std::io::Cursor;
+
+static DEVICE_TYPES: phf::Map<u16, DeviceType> = phf_map! {
+    0x0C3Cu16 => DeviceType { name: "Alarm Clock", model: "CGC1", manufacturer: "Xiaomi" },
+    0x0576u16 => DeviceType { name: "3-in-1 Alarm Clock", model: "CGD1", manufacturer: "Xiaomi" },
+    0x066Fu16 => DeviceType { name: "Temperature/Humidity Sensor", model: "CGDK2", manufacturer: "Xiaomi" },
+    0x0347u16 => DeviceType { name: "Temperature/Humidity Sensor", model: "CGG1", manufacturer: "Xiaomi" },
+    0x0B48u16 => DeviceType { name: "Temperature/Humidity Sensor", model: "CGG1-ENCRYPTED", manufacturer: "Xiaomi" },
+    0x03D6u16 => DeviceType { name: "Door/Window Sensor", model: "CGH1", manufacturer: "Xiaomi" },
+    0x0A83u16 => DeviceType { name: "Motion/Light Sensor", model: "CGPR1", manufacturer: "Xiaomi" },
+    0x03BCu16 => DeviceType { name: "Grow Care Garden", model: "GCLS002", manufacturer: "Xiaomi" },
+    0x0098u16 => DeviceType { name: "Plant Sensor", model: "HHCCJCY01", manufacturer: "Xiaomi" },
+    0x015Du16 => DeviceType { name: "Smart Flower Pot", model: "HHCCPOT002", manufacturer: "Xiaomi" },
+    0x02DFu16 => DeviceType { name: "Formaldehyde Sensor", model: "JQJCY01YM", manufacturer: "Xiaomi" },
+    0x0997u16 => DeviceType { name: "Smoke Detector", model: "JTYJGD03MI", manufacturer: "Xiaomi" },
+    0x1568u16 => DeviceType { name: "Switch (single button)", model: "K9B-1BTN", manufacturer: "Xiaomi" },
+    0x1569u16 => DeviceType { name: "Switch (double button)", model: "K9B-2BTN", manufacturer: "Xiaomi" },
+    0x0DFDu16 => DeviceType { name: "Switch (triple button)", model: "K9B-3BTN", manufacturer: "Xiaomi" },
+    0x1C10u16 => DeviceType { name: "Switch (single button)", model: "K9BB-1BTN", manufacturer: "Xiaomi" },
+    0x1889u16 => DeviceType { name: "Door/Window Sensor", model: "MS1BB(MI)", manufacturer: "Xiaomi" },
+    0x2AEBu16 => DeviceType { name: "Motion Sensor", model: "HS1BB(MI)", manufacturer: "Xiaomi" },
+    0x3F0Fu16 => DeviceType { name: "Flood and Rain Sensor", model: "RS1BB(MI)", manufacturer: "Xiaomi" },
+    0x01AAu16 => DeviceType { name: "Temperature/Humidity Sensor", model: "LYWSDCGQ", manufacturer: "Xiaomi" },
+    0x045Bu16 => DeviceType { name: "Temperature/Humidity Sensor", model: "LYWSD02", manufacturer: "Xiaomi" },
+    0x16E4u16 => DeviceType { name: "Temperature/Humidity Sensor", model: "LYWSD02MMC", manufacturer: "Xiaomi" },
+    0x2542u16 => DeviceType { name: "Temperature/Humidity Sensor", model: "LYWSD02MMC", manufacturer: "Xiaomi" },
+    0x055Bu16 => DeviceType { name: "Temperature/Humidity Sensor", model: "LYWSD03MMC", manufacturer: "Xiaomi" },
+    0x2832u16 => DeviceType { name: "Temperature/Humidity Sensor", model: "MJWSD05MMC", manufacturer: "Xiaomi" },
+    0x098Bu16 => DeviceType { name: "Door/Window Sensor", model: "MCCGQ02HL", manufacturer: "Xiaomi" },
+    0x06D3u16 => DeviceType { name: "Alarm Clock", model: "MHO-C303", manufacturer: "Xiaomi" },
+    0x0387u16 => DeviceType { name: "Temperature/Humidity Sensor", model: "MHO-C401", manufacturer: "Xiaomi" },
+    0x07F6u16 => DeviceType { name: "Nightlight", model: "MJYD02YL", manufacturer: "Xiaomi" },
+    0x04E9u16 => DeviceType { name: "Door Lock", model: "MJZNMSQ01YD", manufacturer: "Xiaomi" },
+    0x00DBu16 => DeviceType { name: "Baby Thermometer", model: "MMC-T201-1", manufacturer: "Xiaomi" },
+    0x0391u16 => DeviceType { name: "Body Thermometer", model: "MMC-W505", manufacturer: "Xiaomi" },
+    0x03DDu16 => DeviceType { name: "Nightlight", model: "MUE4094RT", manufacturer: "Xiaomi" },
+    0x0489u16 => DeviceType { name: "Smart Toothbrush", model: "M1S-T500", manufacturer: "Xiaomi" },
+    0x0806u16 => DeviceType { name: "Smart Toothbrush", model: "T700", manufacturer: "Xiaomi" },
+    0x1790u16 => DeviceType { name: "Smart Toothbrush", model: "T700", manufacturer: "Xiaomi" },
+    0x0A8Du16 => DeviceType { name: "Motion Sensor", model: "RTCGQ02LM", manufacturer: "Xiaomi" },
+    0x3531u16 => DeviceType { name: "Motion Sensor", model: "XMPIRO2SXS", manufacturer: "Xiaomi" },
+    0x0863u16 => DeviceType { name: "Flood Detector", model: "SJWS01LM", manufacturer: "Xiaomi" },
+    0x045Cu16 => DeviceType { name: "Smart Kettle", model: "V-SK152", manufacturer: "Xiaomi" },
+    0x040Au16 => DeviceType { name: "Mosquito Repellent", model: "WX08ZM", manufacturer: "Xiaomi" },
+    0x04E1u16 => DeviceType { name: "Magic Cube", model: "XMMF01JQD", manufacturer: "Xiaomi" },
+    0x1203u16 => DeviceType { name: "Thermometer", model: "XMWSDJ04MMC", manufacturer: "Xiaomi" },
+    0x1949u16 => DeviceType { name: "Switch (double button)", model: "XMWXKG01YL", manufacturer: "Xiaomi" },
+    0x2387u16 => DeviceType { name: "Button", model: "XMWXKG01LM", manufacturer: "Xiaomi" },
+    0x098Cu16 => DeviceType { name: "Door Lock", model: "XMZNMST02YD", manufacturer: "Xiaomi" },
+    0x0784u16 => DeviceType { name: "Door Lock", model: "XMZNMS04LM", manufacturer: "Xiaomi" },
+    0x0E39u16 => DeviceType { name: "Door Lock", model: "XMZNMS08LM", manufacturer: "Xiaomi" },
+    0x07BFu16 => DeviceType { name: "Wireless Switch", model: "YLAI003", manufacturer: "Xiaomi" },
+    0x38BBu16 => DeviceType { name: "Wireless Switch", model: "PTX_YK1_QMIMB", manufacturer: "Xiaomi" },
+    0x0153u16 => DeviceType { name: "Remote Control", model: "YLYK01YL", manufacturer: "Xiaomi" },
+    0x068Eu16 => DeviceType { name: "Fan Remote Control", model: "YLYK01YL-FANCL", manufacturer: "Xiaomi" },
+    0x04E6u16 => DeviceType { name: "Ventilator Fan Remote Control", model: "YLYK01YL-VENFAN", manufacturer: "Xiaomi" },
+    0x03BFu16 => DeviceType { name: "Bathroom Heater Remote", model: "YLYB01YL-BHFRC", manufacturer: "Xiaomi" },
+    0x03B6u16 => DeviceType { name: "Dimmer Switch", model: "YLKG07YL/YLKG08YL", manufacturer: "Xiaomi" },
+    0x0083u16 => DeviceType { name: "Smart Kettle", model: "YM-K1501", manufacturer: "Xiaomi" },
+    0x0113u16 => DeviceType { name: "Smart Kettle", model: "YM-K1501EU", manufacturer: "Xiaomi" },
+    0x069Eu16 => DeviceType { name: "Door Lock", model: "ZNMS16LM", manufacturer: "Xiaomi" },
+    0x069Fu16 => DeviceType { name: "Door Lock", model: "ZNMS17LM", manufacturer: "Xiaomi" },
+    0x0380u16 => DeviceType { name: "Door Lock", model: "DSL-C08", manufacturer: "Xiaomi" },
+    0x11C2u16 => DeviceType { name: "Door Lock", model: "Lockin-SV40", manufacturer: "Xiaomi" },
+    0x0DE7u16 => DeviceType { name: "Odor Eliminator", model: "SU001-T", manufacturer: "Xiaomi" },
+};
+
+/// Maps a MiBeacon device ID to a [DeviceType].
+#[must_use]
+pub fn device_id_to_type(device_id: u16) -> Option<&'static DeviceType> {
+    DEVICE_TYPES.get(&device_id)
+}
 
 /// MAC Address of a device.
 #[derive(BinRead)]
@@ -52,24 +125,6 @@ impl fmt::Debug for MacAddress {
             "{:02X}:{:02X}:{:02X}:{:02X}:{:02X}:{:02X}",
             self.0[0], self.0[1], self.0[2], self.0[3], self.0[4], self.0[5]
         )
-    }
-}
-
-/// Unsigned integer consisting of 3 bytes.
-#[derive(BinRead)]
-#[br(little)]
-pub struct U24([u8; 3]);
-
-impl U24 {
-    /// Get the number as [`u32`].
-    pub fn as_u32(&self) -> u32 {
-        u32::from(self.0[2]) << 16 | u32::from(self.0[1]) << 8 | u32::from(self.0[0])
-    }
-}
-
-impl fmt::Debug for U24 {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}", self.as_u32())
     }
 }
 

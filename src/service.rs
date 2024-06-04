@@ -9,9 +9,9 @@
 //! Service-related functions.
 
 use crate::device::DeviceType;
-use crate::error::ParseError;
 use crate::mibeacon::MiBeaconServiceAdvertisement;
 use crate::sensor::SensorEvent;
+use crate::util::ParseError;
 
 use uuid::Uuid;
 
