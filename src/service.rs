@@ -11,6 +11,7 @@
 use crate::device::DeviceType;
 use crate::hhccjcy10::HHCCJCY10ServiceAdvertisement;
 use crate::mibeacon::MiBeaconServiceAdvertisement;
+use crate::miscale::MiScaleServiceAdvertisement;
 use crate::sensor::SensorEvent;
 use crate::util::ParseError;
 
@@ -49,6 +50,8 @@ pub enum ServiceAdvertisement {
     MiBeacon(MiBeaconServiceAdvertisement),
     /// A parsed HHCCJCY10 Plant Sensor (Pink version) service advertisement.
     HHCCJCY10(HHCCJCY10ServiceAdvertisement),
+    /// A parsed Mi Scale (v1/v2) service advertisement.
+    MiScale(MiScaleServiceAdvertisement),
 }
 
 impl ServiceAdvertisement {
@@ -58,6 +61,7 @@ impl ServiceAdvertisement {
         match &self {
             Self::MiBeacon(parsed_adverisement) => parsed_adverisement.device_type(),
             Self::HHCCJCY10(parsed_adverisement) => parsed_adverisement.device_type().into(),
+            Self::MiScale(parsed_adverisement) => parsed_adverisement.device_type(),
         }
     }
 
@@ -69,6 +73,9 @@ impl ServiceAdvertisement {
                 Box::new(parsed_adverisement.iter_sensor_events())
             }
             Self::HHCCJCY10(parsed_adverisement) => {
+                Box::new(parsed_adverisement.iter_sensor_events())
+            }
+            Self::MiScale(parsed_adverisement) => {
                 Box::new(parsed_adverisement.iter_sensor_events())
             }
         }

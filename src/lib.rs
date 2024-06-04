@@ -25,6 +25,7 @@
 pub mod device;
 pub mod hhccjcy10;
 pub mod mibeacon;
+pub mod miscale;
 pub mod sensor;
 pub mod service;
 mod util;

@@ -100,7 +100,10 @@ pub enum NumericMeasurementType {
     RemainingSupplies,
     /// A battery power measurement.
     BatteryPower,
+    /// A weight measurement.
     Weight,
+    /// An impedance measurement.
+    Impedance,
 }
 
 impl fmt::Display for NumericMeasurementType {
@@ -115,6 +118,7 @@ impl fmt::Display for NumericMeasurementType {
             Self::RemainingSupplies => write!(f, "remaining_supplies"),
             Self::BatteryPower => write!(f, "battery_power"),
             Self::Weight => write!(f, "weight"),
+            Self::Impedance => write!(f, "impedance"),
         }
     }
 }
@@ -136,6 +140,8 @@ pub enum UnitOfMeasurement {
     Seconds,
     /// Kilogram (kg)
     Kilogram,
+    /// Ohm (Ω)
+    Ohm,
 }
 
 impl fmt::Display for UnitOfMeasurement {
@@ -148,6 +154,7 @@ impl fmt::Display for UnitOfMeasurement {
             Self::MilligramPerCubicMeter => write!(f, "mg/m³"),
             Self::Seconds => write!(f, "s"),
             Self::Kilogram => write!(f, "kg"),
+            Self::Ohm => write!(f, "Ω"),
         }
     }
 }
