@@ -1145,7 +1145,6 @@ pub enum MiBeaconObjectPayload {
 }
 
 /// MiBeacon Object
-#[allow(dead_code)]
 #[binread]
 #[br(little)]
 #[derive(Debug)]
@@ -1187,7 +1186,6 @@ pub struct MiBeaconBaseIoCapabilities {
 }
 
 /// I/O Capabilities
-#[allow(dead_code)]
 #[binread]
 #[br(little)]
 #[derive(Debug)]
@@ -1225,7 +1223,6 @@ pub struct MiBeaconCapabilities {
 }
 
 /// Service Advertisement in the MiBeacon format.
-#[allow(dead_code)]
 #[binread]
 #[br(little)]
 #[derive(Debug)]
