@@ -42,6 +42,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
                 .filter_map(|(uuid, data)| parse_service_advertisement(uuid, data).ok())
                 .peekable();
             if service_advertisements.peek().is_some() {
+                println!("{:02X?}", &service_data);
                 let peripheral = central.peripheral(id).await?;
                 println!("MAC: {}", peripheral.address());
                 let properties = peripheral.properties().await?;
@@ -55,9 +56,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
                     .inspect(|local_name| println!("RSSI: {}", local_name));
 
                 for service_advertisement in service_advertisements {
-                    for event in service_advertisement.iter_sensor_values() {
-                        println!("Sensor Value: {}", event);
-                    }
+                    dbg!(&service_advertisement);
                 }
                 println!()
             }

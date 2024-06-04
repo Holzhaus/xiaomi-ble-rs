@@ -11,7 +11,8 @@
 use crate::device::DeviceType;
 use crate::error::ParseError;
 use crate::mibeacon::MiBeaconServiceAdvertisement;
-use crate::sensor::SensorValue;
+use crate::sensor::SensorEvent;
+
 use uuid::Uuid;
 
 use thiserror::Error;
@@ -55,10 +56,14 @@ impl ServiceAdvertisement {
             Self::MiBeacon(parsed_adverisement) => parsed_adverisement.device_type(),
         }
     }
+
     /// Yields a list of sensor values parsed from the objects contained in the service advertisement.
-    pub fn iter_sensor_values(&self) -> impl Iterator<Item = SensorValue> + '_ {
+    #[must_use]
+    pub fn iter_sensor_events(&self) -> Box<dyn Iterator<Item = SensorEvent> + Send + '_> {
         match &self {
-            Self::MiBeacon(parsed_adverisement) => parsed_adverisement.iter_sensor_values(),
+            Self::MiBeacon(parsed_adverisement) => {
+                Box::new(parsed_adverisement.iter_sensor_events())
+            }
         }
     }
 }
