@@ -9,6 +9,7 @@
 //! Service-related functions.
 
 use crate::device::DeviceType;
+use crate::hhccjcy10::HHCCJCY10ServiceAdvertisement;
 use crate::mibeacon::MiBeaconServiceAdvertisement;
 use crate::sensor::SensorEvent;
 use crate::util::ParseError;
@@ -46,6 +47,8 @@ pub enum ServiceType {
 pub enum ServiceAdvertisement {
     /// A parsed MiBeacon service advertisement.
     MiBeacon(MiBeaconServiceAdvertisement),
+    /// A parsed HHCCJCY10 Plant Sensor (Pink version) service advertisement.
+    HHCCJCY10(HHCCJCY10ServiceAdvertisement),
 }
 
 impl ServiceAdvertisement {
@@ -54,6 +57,7 @@ impl ServiceAdvertisement {
     pub fn device_type(&self) -> Option<&'static DeviceType> {
         match &self {
             Self::MiBeacon(parsed_adverisement) => parsed_adverisement.device_type(),
+            Self::HHCCJCY10(parsed_adverisement) => parsed_adverisement.device_type().into(),
         }
     }
 
@@ -62,6 +66,9 @@ impl ServiceAdvertisement {
     pub fn iter_sensor_events(&self) -> Box<dyn Iterator<Item = SensorEvent> + Send + '_> {
         match &self {
             Self::MiBeacon(parsed_adverisement) => {
+                Box::new(parsed_adverisement.iter_sensor_events())
+            }
+            Self::HHCCJCY10(parsed_adverisement) => {
                 Box::new(parsed_adverisement.iter_sensor_events())
             }
         }
@@ -106,6 +113,9 @@ pub fn parse_service_advertisement(
     match service_type {
         Some(ServiceType::MiBeacon) => MiBeaconServiceAdvertisement::from_slice(payload)
             .map(ServiceAdvertisement::MiBeacon)
+            .map_err(ServiceAdvertisementError::ParsingFailed),
+        Some(ServiceType::HHCCJCY10) => HHCCJCY10ServiceAdvertisement::from_slice(payload)
+            .map(ServiceAdvertisement::HHCCJCY10)
             .map_err(ServiceAdvertisementError::ParsingFailed),
         _ => Err(ServiceAdvertisementError::UnhandledService),
     }

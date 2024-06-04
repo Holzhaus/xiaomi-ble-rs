@@ -23,6 +23,7 @@
 #![cfg_attr(not(test), deny(clippy::panic_in_result_fn))]
 
 pub mod device;
+pub mod hhccjcy10;
 pub mod mibeacon;
 pub mod sensor;
 pub mod service;
