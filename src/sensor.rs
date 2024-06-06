@@ -67,17 +67,25 @@ pub enum BinaryMeasurementType {
     Light,
 }
 
+impl BinaryMeasurementType {
+    /// Get the lowercase name of this type.
+    #[must_use]
+    pub fn as_str(&self) -> &'static str {
+        match &self {
+            Self::Power => "power",
+            Self::Sleep => "sleep",
+            Self::Binding => "binding",
+            Self::Switch => "switch",
+            Self::WaterImmersion => "water_immersion",
+            Self::GasLeak => "gas_leak",
+            Self::Light => "light",
+        }
+    }
+}
+
 impl fmt::Display for BinaryMeasurementType {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        match &self {
-            Self::Power => write!(f, "power"),
-            Self::Sleep => write!(f, "sleep"),
-            Self::Binding => write!(f, "binding"),
-            Self::Switch => write!(f, "switch"),
-            Self::WaterImmersion => write!(f, "water_immersion"),
-            Self::GasLeak => write!(f, "gas_leak"),
-            Self::Light => write!(f, "light"),
-        }
+        write!(f, "{}", self.as_str())
     }
 }
 
@@ -106,20 +114,28 @@ pub enum NumericMeasurementType {
     Impedance,
 }
 
+impl NumericMeasurementType {
+    /// Get the lowercase name of this type.
+    #[must_use]
+    pub fn as_str(&self) -> &'static str {
+        match &self {
+            Self::Temperature => "temperature",
+            Self::Humidity => "humidity",
+            Self::Illuminance => "illuminance",
+            Self::Moisture => "moisture",
+            Self::Conductivity => "conductivity",
+            Self::FormaldehydeConcentration => "formaldehyde_concentration",
+            Self::RemainingSupplies => "remaining_supplies",
+            Self::BatteryPower => "battery_power",
+            Self::Weight => "weight",
+            Self::Impedance => "impedance",
+        }
+    }
+}
+
 impl fmt::Display for NumericMeasurementType {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        match &self {
-            Self::Temperature => write!(f, "temperature"),
-            Self::Humidity => write!(f, "humidity"),
-            Self::Illuminance => write!(f, "illuminance"),
-            Self::Moisture => write!(f, "moisture"),
-            Self::Conductivity => write!(f, "conductivity"),
-            Self::FormaldehydeConcentration => write!(f, "formaldehyde_concentration"),
-            Self::RemainingSupplies => write!(f, "remaining_supplies"),
-            Self::BatteryPower => write!(f, "battery_power"),
-            Self::Weight => write!(f, "weight"),
-            Self::Impedance => write!(f, "impedance"),
-        }
+        write!(f, "{}", self.as_str())
     }
 }
 
@@ -144,17 +160,25 @@ pub enum UnitOfMeasurement {
     Ohm,
 }
 
+impl UnitOfMeasurement {
+    /// Get the unit as [`str`].
+    #[must_use]
+    pub fn as_str(&self) -> &'static str {
+        match &self {
+            Self::DegreesCelsius => "°C",
+            Self::Percent => "%",
+            Self::Lux => "lx",
+            Self::MicrosiemensPerCentimeter => "µS/cm",
+            Self::MilligramPerCubicMeter => "mg/m³",
+            Self::Seconds => "s",
+            Self::Kilogram => "kg",
+            Self::Ohm => "Ω",
+        }
+    }
+}
+
 impl fmt::Display for UnitOfMeasurement {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        match &self {
-            Self::DegreesCelsius => write!(f, "°C"),
-            Self::Percent => write!(f, "%"),
-            Self::Lux => write!(f, "lx"),
-            Self::MicrosiemensPerCentimeter => write!(f, "µS/cm"),
-            Self::MilligramPerCubicMeter => write!(f, "mg/m³"),
-            Self::Seconds => write!(f, "s"),
-            Self::Kilogram => write!(f, "kg"),
-            Self::Ohm => write!(f, "Ω"),
-        }
+        write!(f, "{}", self.as_str())
     }
 }
